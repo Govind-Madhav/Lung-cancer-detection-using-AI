@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+pydantic-settings
+python-multipart
+requests
+pytest
+torch
+torchvision
+nibabel
+tqdm
+numpy
+scipy
+httpx
+
