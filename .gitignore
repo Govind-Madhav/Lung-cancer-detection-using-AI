@@ -25,6 +25,27 @@ pnpm-debug.log
 *.db
 *.sqlite3
 
+# Medical Data & Images
+*.dcm
+*.DCM
+*.nii
+*.nii.gz
+*.mhd
+*.raw
+*.nhdr
+*.nrrd
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.tiff
+*.tif
+*.svg
+!frontend/src/**/*.svg
+!frontend/src/**/*.png
+!frontend/src/**/*.jpg
+
 # Project specific
 backend.zip
 PKG - NLST-New-lesion-LongCT/
