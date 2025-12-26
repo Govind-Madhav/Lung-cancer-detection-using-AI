@@ -1,0 +1,10 @@
+src/components/common/MedicalErrorBoundary.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/layout/Sidebar.tsx(2,44): error TS6133: 'Info' is declared but its value is never read.
+src/components/modals/DisclaimerModal.tsx(2,1): error TS6133: 'X' is declared but its value is never read.
+src/components/prediction/ExplainabilityViewer.tsx(1,1): error TS6133: 'useState' is declared but its value is never read.
+src/components/prediction/ImageUpload.tsx(4,1): error TS6133: 'Button' is declared but its value is never read.
+src/pages/Predict.tsx(1,20): error TS6133: 'useEffect' is declared but its value is never read.
+src/pages/Result.tsx(5,1): error TS6133: 'Loader' is declared but its value is never read.
+src/pages/Result.tsx(28,11): error TS6133: 'id' is declared but its value is never read.
+src/pages/Result.tsx(38,18): error TS2552: Cannot find name 'Alert'. Did you mean 'alert'?
+src/pages/Result.tsx(40,19): error TS2552: Cannot find name 'Alert'. Did you mean 'alert'?

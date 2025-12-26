@@ -7,11 +7,11 @@ import numpy as np
 import scipy.ndimage
 
 class LungCancerDataset(Dataset):
-    def __init__(self, root_dir, target_size=(128, 128, 64), mode='train'):
+    def __init__(self, root_dir, target_size=(128, 224, 224), mode='train'):
         """
         Args:
             root_dir (str): Path to 'NIFTI' folder.
-            target_size (tuple): Desired output size (H, W, D).
+            target_size (tuple): Desired output size (D, H, W). Fixed to (128, 224, 224) for TripleHybrid.
             mode (str): 'train' or 'val'.
         """
         self.root_dir = root_dir
@@ -19,32 +19,68 @@ class LungCancerDataset(Dataset):
         self.mode = mode
         
         # Recursive glob to find NIFTI files
-        # Adjust pattern based on actual folder structure depth
         self.file_paths = glob.glob(os.path.join(root_dir, "**/*.nii.gz"), recursive=True)
         
-        # Filter out masks/points/resampled if needed, or select only raw images
-        # Heuristic: exclude files with "point" or "resampled" in name if looking for raw
+        # Filter out masks/points/resampled if needed
         self.image_paths = [f for f in self.file_paths if "point" not in f and "resampled" not in f]
         
-        print(f"[{mode.upper()}] Found {len(self.image_paths)} images.")
+        print(f"[{mode.upper()}] Dataset loaded with {len(self.image_paths)} images.")
 
     def __len__(self):
         return len(self.image_paths)
 
-    def normalize(self, volume):
-        """Normalize CT Hounsfield Units (-1000 to 400)."""
-        min_hu = -1000
-        max_hu = 400
-        volume[volume < min_hu] = min_hu
-        volume[volume > max_hu] = max_hu
-        volume = (volume - min_hu) / (max_hu - min_hu)
+    def preprocess(self, volume):
+        """
+        Medical-grade preprocessing pipeline for NLST.
+        1. HU Clipping [-1000, 400]
+        2. Lung Windowing (W:1500, L:-600)
+        3. Normalization [0, 1]
+        4. Depth Standardization (128 slices)
+        5. Spatial Resizing (224x224)
+        """
+        # 1. HU Clipping
+        volume = np.clip(volume, -1000, 400)
+        
+        # 2. Lung Windowing
+        # Center: -600, Width: 1500
+        # Formula: (val - (center - width/2)) / width
+        window_center = -600
+        window_width = 1500
+        min_window = window_center - window_width / 2
+        max_window = window_center + window_width / 2
+        
+        volume = (volume - min_window) / (max_window - min_window)
+        
+        # 3. Normalization (Clip to 0-1 range after windowing)
+        volume = np.clip(volume, 0, 1)
+        
         return volume.astype("float32")
 
-    def resize(self, volume):
-        """Resize 3D volume to target_size."""
-        curr_shape = volume.shape
-        resize_factor = np.array(self.target_size) / np.array(curr_shape)
-        volume = scipy.ndimage.zoom(volume, resize_factor, mode='nearest')
+    def resize_volume(self, volume):
+        """
+        Resize volume to (128, 224, 224).
+        Axis 0 is Depth for NIFTI usually, but check input standard.
+        Assuming volume is (H, W, D) from nibabel, we want (Dst_D, Dst_H, Dst_W).
+        """
+        # Nibabel loads as (H, W, D). We want (D, H, W) for PyTorch
+        volume = volume.transpose(2, 0, 1) # (D, H, W)
+        
+        current_depth, current_h, current_w = volume.shape
+        target_depth, target_h, target_w = self.target_size
+        
+        # 4. Depth Standardization (Uniform Sampling)
+        if current_depth != target_depth:
+            # Generate indices for uniform sampling
+            indices = np.linspace(0, current_depth - 1, target_depth).astype(int)
+            volume = volume[indices]
+            
+        # 5. Spatial Resizing (to 224x224)
+        # Process slice by slice to save memory if needed, or full volume zoom
+        # Scipy zoom can handle 3D, but might be slow.
+        # Let's use zoom only on H/W axes since D is already fixed
+        zoom_factors = (1, target_h / current_h, target_w / current_w)
+        volume = scipy.ndimage.zoom(volume, zoom_factors, order=1) # Linear interpolation
+        
         return volume
 
     def __getitem__(self, idx):
@@ -54,20 +90,17 @@ class LungCancerDataset(Dataset):
             volume = nifti.get_fdata()
             
             # Preprocessing
-            volume = self.normalize(volume)
-            volume = self.resize(volume)
+            volume = self.preprocess(volume)
+            volume = self.resize_volume(volume)
             
-            # Add channel dim: (1, D, H, W) or (1, H, W, D) depending on convention
-            # PyTorch 3D Conv expects (C, D, H, W) usually
-            volume = np.expand_dims(volume, axis=0) # (1, H, W, D) -> reorder if needed
+            # Add channel dim: (1, D, H, W)
+            volume = np.expand_dims(volume, axis=0)
             
-            # Mock label for now (since we don't have metadata csv yet)
-            # In real scenario, we parse patient ID from path and lookup label
-            label = torch.tensor(1.0, dtype=torch.float32) # Randomly assume positive for demo training
+            # Assign placeholder label (Pending integration with clinical metadata)
+            label = torch.tensor(1.0, dtype=torch.float32)
             
             return torch.tensor(volume, dtype=torch.float32), label
             
         except Exception as e:
             print(f"Error loading {path}: {e}")
-            # Return dummy tensor to prevent crash
             return torch.zeros((1, *self.target_size)), torch.tensor(0.0)

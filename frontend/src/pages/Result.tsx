@@ -1,8 +1,9 @@
-import { useParams, useLocation, Link } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import ResultCard from '@/components/prediction/ResultCard';
 import ExplainabilityViewer from '@/components/prediction/ExplainabilityViewer';
 import ErrorState from '@/components/common/ErrorState';
-import Loader from '@/components/common/Loader';
+// import Loader from '@/components/common/Loader';
+import Alert from '@/components/common/Alert';
 import Button from '@/components/common/Button';
 import type { PredictionResponse } from '@/schemas/prediction';
 
@@ -25,7 +26,7 @@ import type { PredictionResponse } from '@/schemas/prediction';
  */
 
 const Result = () => {
-    const { id } = useParams<{ id: string }>();
+    // const { id } = useParams<{ id: string }>();
     const location = useLocation();
     const prediction = location.state?.prediction as PredictionResponse | undefined;
 

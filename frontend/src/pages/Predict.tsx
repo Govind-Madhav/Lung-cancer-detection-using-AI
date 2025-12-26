@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDisclaimer } from '@/hooks/useDisclaimer';
 import { usePrediction } from '@/hooks/usePrediction';
@@ -28,7 +28,7 @@ const Predict = () => {
 
     const [externalRef, setExternalRef] = useState('');
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [modelType, setModelType] = useState<ModelType>('cnn_rnn');
+    const [modelType] = useState<ModelType>('cnn_rnn');
     const [validationError, setValidationError] = useState<string | null>(null);
 
     const canSubmit = isAccepted && selectedFile && externalRef.trim().length > 0 && !isPredicting;
@@ -113,7 +113,7 @@ const Predict = () => {
                 {/* Model Selection */}
                 <ModelSelector
                     selected={modelType}
-                    onChange={setModelType}
+                    onChange={() => { }} // No-op, model selection is locked
                 />
 
                 {/* Errors */}

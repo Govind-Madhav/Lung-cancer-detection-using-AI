@@ -1,7 +1,7 @@
 import { Upload, X } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { validateImageFile } from '@/utils/validation';
-import Button from '../common/Button';
+// import Button from '../common/Button';
 import Alert from '../common/Alert';
 
 interface ImageUploadProps {
@@ -80,8 +80,8 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onFileSelect, selectedFile })
             {!selectedFile ? (
                 <div
                     className={`border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-colors ${dragActive
-                            ? 'border-medical-blue bg-blue-50'
-                            : 'border-gray-300 hover:border-gray-400'
+                        ? 'border-medical-blue bg-blue-50'
+                        : 'border-gray-300 hover:border-gray-400'
                         }`}
                     onDragEnter={handleDrag}
                     onDragLeave={handleDrag}

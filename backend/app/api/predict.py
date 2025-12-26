@@ -15,7 +15,7 @@ async def predict(
     try:
         # Read file into bytes
         file_bytes = await file.read()
-        return prediction_service.run_prediction(db, patient_id, file_bytes, model_type)
+        return prediction_service.run_prediction(db, patient_id, file_bytes, "cnn_rnn")
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
@@ -29,4 +29,4 @@ async def predict_with_explain(
     db: Session = Depends(get_db)
 ):
     # For now, it's the same flow, just explicit endpoint naming as requested
-    return await predict(patient_id, model_type, file, db)
+    return await predict(patient_id, "cnn_rnn", file, db)

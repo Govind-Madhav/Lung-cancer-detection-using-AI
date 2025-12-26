@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Activity, BarChart3, Scale, Info } from 'lucide-react';
+import { Home, Activity, BarChart3, Scale } from 'lucide-react';
 
 /**
  * Sidebar Navigation
@@ -36,8 +36,8 @@ const Sidebar = () => {
                             key={item.path}
                             to={item.path}
                             className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
-                                    ? 'bg-blue-50 text-medical-blue font-semibold'
-                                    : 'text-gray-700 hover:bg-gray-50'
+                                ? 'bg-blue-50 text-medical-blue font-semibold'
+                                : 'text-gray-700 hover:bg-gray-50'
                                 }`}
                         >
                             <Icon className="w-5 h-5" />

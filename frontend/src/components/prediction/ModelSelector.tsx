@@ -12,60 +12,43 @@ interface ModelSelectorProps {
  * Makes multi-model system explicit - reinforces research depth.
  */
 
-const ModelSelector: React.FC<ModelSelectorProps> = ({ selected, onChange }) => {
+const ModelSelector: React.FC<ModelSelectorProps> = () => {
     const models = [
         {
             value: 'cnn_rnn' as ModelType,
-            label: 'CNN-RNN',
+            label: 'Model V1 (Hybrid Architecture)',
             badge: 'Primary',
-            description: 'Convolutional + Recurrent Neural Network with Grad-CAM explainability',
-        },
-        {
-            value: 'vit' as ModelType,
-            label: 'Vision Transformer (ViT)',
-            badge: 'Research',
-            description: 'Transformer-based architecture with attention map visualization',
+            description: 'Advanced hybrid architecture combining CNN and RNN for precise lung cancer detection.',
         },
     ];
 
     return (
         <div className="space-y-4">
             <label className="block text-gray-900 font-semibold mb-3">
-                Select Model Architecture
+                Model Architecture
             </label>
 
             <div className="space-y-3">
                 {models.map((model) => (
-                    <label
+                    <div
                         key={model.value}
-                        className={`block border-2 rounded-lg p-4 cursor-pointer transition-colors ${selected === model.value
-                                ? 'border-medical-blue bg-blue-50'
-                                : 'border-gray-200 hover:border-gray-300'
-                            }`}
+                        className="block border-2 border-medical-blue bg-blue-50 rounded-lg p-4"
                     >
                         <div className="flex items-start gap-3">
-                            <input
-                                type="radio"
-                                name="model"
-                                value={model.value}
-                                checked={selected === model.value}
-                                onChange={() => onChange(model.value)}
-                                className="mt-1 w-5 h-5 text-medical-blue focus:ring-medical-blue border-gray-300"
-                            />
+                            <div className="mt-1 w-5 h-5 flex items-center justify-center rounded-full border-2 border-medical-blue">
+                                <div className="w-2.5 h-2.5 rounded-full bg-medical-blue" />
+                            </div>
                             <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-1">
                                     <span className="font-semibold text-gray-900">{model.label}</span>
-                                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${model.badge === 'Primary'
-                                            ? 'bg-blue-100 text-blue-800'
-                                            : 'bg-purple-100 text-purple-800'
-                                        }`}>
+                                    <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-blue-100 text-blue-800">
                                         {model.badge}
                                     </span>
                                 </div>
                                 <p className="text-sm text-gray-600">{model.description}</p>
                             </div>
                         </div>
-                    </label>
+                    </div>
                 ))}
             </div>
         </div>
