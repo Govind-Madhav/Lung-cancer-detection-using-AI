@@ -13,4 +13,5 @@ tqdm
 numpy
 scipy
 httpx
-
+pymysql
+cryptography

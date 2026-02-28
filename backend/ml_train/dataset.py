@@ -56,6 +56,31 @@ class LungCancerDataset(Dataset):
         
         return volume.astype("float32")
 
+    def augment(self, volume):
+        """
+        Apply random augmentations:
+        1. Horizontal Flip (p=0.5)
+        2. Random Rotation (+/- 10 deg)
+        3. Gaussian Noise
+        """
+        # 1. Random Flip
+        if np.random.rand() > 0.5:
+             # Flip along width axis (Axis 2: D, H, W)
+            volume = np.flip(volume, axis=2)
+
+        # 2. Random Rotation (scipy rotate is slow, maybe skip or keep simple)
+        # Keeping it simple: 90 deg rotations are safe, small angles require interpolation
+        # Let's stick to Flip + Noise for speed/stability first.
+        
+        # 3. Gaussian Noise
+        if np.random.rand() > 0.5:
+            sigma = 0.01
+            noise = np.random.normal(0, sigma, volume.shape)
+            volume = volume + noise
+            volume = np.clip(volume, 0, 1) # Keep in valid range
+
+        return volume.astype("float32")
+
     def resize_volume(self, volume):
         """
         Resize volume to (128, 224, 224).
@@ -92,6 +117,10 @@ class LungCancerDataset(Dataset):
             # Preprocessing
             volume = self.preprocess(volume)
             volume = self.resize_volume(volume)
+            
+            # Augmentation (Train only)
+            if self.mode == 'train':
+                volume = self.augment(volume)
             
             # Add channel dim: (1, D, H, W)
             volume = np.expand_dims(volume, axis=0)
